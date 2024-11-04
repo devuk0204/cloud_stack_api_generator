@@ -1,0 +1,76 @@
+/* Base Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+}
+
+/* Conversation Container */
+.conversation-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+    margin-bottom: 20px;
+}
+
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.user-message {
+    background-color: #2e7d32;
+    align-self: flex-end;
+}
+
+.bot-message {
+    background-color: #1565c0;
+    align-self: flex-start;
+}
+
+/* Input Container */
+#input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#userInput {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+#submitMessage, #toggle-button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#submitMessage {
+    background-color: #55cb5b;
+}
+#toggle-button {
+    background-color: #3686e0;
+}
+#toggle-button.active {
+    background-color: #d32f2f;
+}
+
+#toggle-button i {
+    color: #ffffff;
+}
