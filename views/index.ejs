@@ -3,31 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Virtual Assistant</title>
-
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="main-container">
         <div class="conversation-container" id="conversation">
-            <!-- Messages will be appended here -->
             <div class="message bot-message">Assistant: Hello! How can I assist you today?</div>
         </div>
         <div id="input-container">
-            <input type="text" id="userInput" placeholder="Type your message..." />
-            <button id="submitMessage">Send</button>
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button id="submitMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
             <button id="toggle-button">
                 <i class="fas fa-microphone"></i>
             </button>
         </div>
     </div>
 
-    <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Main JavaScript -->
     <script type="module" src="/dashboard.js"></script>
 </body>
 </html>
