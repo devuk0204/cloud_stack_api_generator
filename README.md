@@ -14,7 +14,7 @@ The app works as a chatbot utilising the new realtime websocket system to have a
 
 ## Demo
 
-Include a screenshot showing the app interface
+<img width="1512" alt="Screenshot 2024-11-04 at 11 46 32 pm" src="https://github.com/user-attachments/assets/0b59c073-9aad-47a3-b51b-47b9513b3634">
 
 ## Technologies Used
 
@@ -78,15 +78,15 @@ openai-realtime-api-nodejs-dashboard/
 |-- public/ # Frontend files
 | |-- /wavtools # Assets for speech recognition/synthesis.
 | |-- dashboard.js # Client-side JavaScript
-| `-- style.css # Styling for the application
+|  -- style.css # Styling for the application
 |
 |-- views/ # Frontend HTML files
 |  -- index.ejs 
 |
 |-- .env # Environment variables (not included in version control)
 |-- server.js # Main server file
-|-- package.json # Project metadata and dependencies
-`-- README.md # Project documentation
+|-- package.json
+ -- README.md
 ```
 
 ## Usage
