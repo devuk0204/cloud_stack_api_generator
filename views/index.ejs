@@ -2,22 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Virtual Assistant</title>
+    <title>API Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="main-container">
         <div class="conversation-container" id="conversation">
-            <div class="message bot-message">Assistant: Hello! How can I assist you today?</div>
+            <div class="message bot-message">사용하고 싶은 클라우드 스택 API의 종류 혹은 설명과 필요한 정보를 넣어주세요</div>
         </div>
         <div id="input-container">
-            <input type="text" id="userInput" placeholder="Type your message...">
+            <input type="text" id="userInput" placeholder="정보 입력">
             <button id="submitMessage">
                 <i class="fas fa-paper-plane"></i>
-            </button>
-            <button id="toggle-button">
-                <i class="fas fa-microphone"></i>
             </button>
         </div>
     </div>

@@ -1,5 +1,3 @@
-// server.js
-
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -28,7 +26,7 @@ io.on('connection', (socket) => {
     const client = new RealtimeClient({ apiKey: process.env.OPENAI_API_KEY });
 
     client.updateSession({
-        instructions: 'You are a helpful, english speaking assistant.',
+        instructions: '너는 CloudStack API 생성을 위한 전문가야, 사용자가 요청하는 API를 생성해줘. CloudStack API는 보통 GET 메소드 형태로 요청을 해야 하니 그에 맞춰 생성해줘. 필요하다면 인터넷 정보를 참조해도 좋아. 그리고 API를 생성하는데 필요하지만, 사용자가 넣지 않은 정보는 임의로 만들지 말고 사용자에게 물어봐야 해. 예를 들어, API 요청 경로에 필요한 파라미터가 있다면, 그 파라미터의 이름과 타입을 사용자에게 물어봐야 해. 사용자가 답변을 하지 않으면, API 요청 경로를 생성하지 말고, 사용자에게 다시 물어봐야해. 별도의 설명 없이 API 요청 경로를 생성해줘야 해. 그리고 API 경로를 생성할 때는 api?부터 생성하면 돼',
         voice: 'alloy',
         turn_detection: { type: 'server_vad', threshold: 0.3 },
         output_audio: { model: 'audio-davinci', format: 'pcm' },
@@ -116,7 +114,7 @@ io.on('connection', (socket) => {
 
     // Handle text messages from the user
     socket.on('userMessage', (message) => {
-        client.sendUserMessageContent([{ type: 'input_text', text: message }]);
+        client. sendUserMessageContent([{ type: 'input_text', text: message }]);
     });
 
     socket.on('disconnect', () => {

@@ -1,13 +1,12 @@
 // dashboard.js
 
-import { WavRecorder, WavStreamPlayer } from '/wavtools/index.js';
+import { WavStreamPlayer } from '/wavtools/index.js';
 const socket = io();
 
 // DOM Elements
 const conversation = document.getElementById('conversation');
 const userInput = document.getElementById('userInput');
 const submitButton = document.getElementById('submitMessage');
-const toggleButton = document.getElementById('toggle-button');
 
 // Variables
 let conversationMode = false;
@@ -18,7 +17,6 @@ let sentUserMessage = null;
 let sentUserMessageContent = null;
 
 // Audio Tools
-const wavRecorder = new WavRecorder({ sampleRate: 24000 });
 const wavStreamPlayer = new WavStreamPlayer({ sampleRate: 24000 });
 
 // Initialize audio player
@@ -28,7 +26,6 @@ const wavStreamPlayer = new WavStreamPlayer({ sampleRate: 24000 });
 
 // Event Listeners
 submitButton.addEventListener('click', sendMessage);
-toggleButton.addEventListener('click', toggleConversationMode);
 userInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
 });
@@ -50,7 +47,7 @@ function displayUserMessage(message, isFinal = false) {
 
         // Create new message element if one doesn't exist.
         currentUserMessage = document.createElement('div');
-        currentUserMessage.textContent = `You: ${message}`;
+        currentUserMessage.textContent = `${message}`;
         currentUserMessage.classList.add('message', 'user-message');
         conversation.appendChild(currentUserMessage);
     } else {
@@ -60,7 +57,7 @@ function displayUserMessage(message, isFinal = false) {
     // Handle typed messages
     if (sentUserMessage && message === '(item sent)') {
         sentUserMessage = false;
-        currentUserMessage.textContent = `You: ${sentUserMessageContent}`;
+        currentUserMessage.textContent = `${sentUserMessageContent}`;
         sentUserMessageContent = null;
     }
 
@@ -78,7 +75,7 @@ function updateBotMessage(newText, isFinal = false) {
         currentBotMessage.classList.add('message', 'bot-message');
         conversation.appendChild(currentBotMessage);
     }
-    currentBotMessage.textContent = `Assistant: ${newText}`;
+    currentBotMessage.textContent = `${newText}`;
     scrollToBottom();
 
     if (isFinal) {
@@ -91,32 +88,6 @@ function scrollToBottom() {
     conversation.scrollTop = conversation.scrollHeight;
 }
 
-// Enable and disable conversation mode
-function toggleConversationMode() {
-    conversationMode = !conversationMode;
-    toggleButton.classList.toggle('active', conversationMode);
-
-    if (conversationMode) {
-        startRecording();
-    } else {
-        stopRecording();
-    }
-}
-
-// Start recording mic input
-async function startRecording() {
-    await wavRecorder.begin();
-    await wavRecorder.record((data) => {
-        socket.emit('audioInput', data.mono);
-    });
-}
-
-// Stop recording mic input
-async function stopRecording() {
-    await wavRecorder.pause();
-    await wavRecorder.end();
-    socket.emit('stopRecording');
-}
 
 // Socket Events
 
