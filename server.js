@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import { exec } from 'child_process';
 dotenv.config();
 
 import { RealtimeClient } from '@openai/realtime-api-beta';
@@ -15,18 +16,96 @@ const io = new Server(server);
 app.set('view engine', 'ejs');
 app.set('views', './views');
 app.use(express.static('public'));
-
+app.use(express.json());
 // Main Route
 app.get('/', (req, res) => {
     res.render('index');
-  });
+});
+
+app.get('/nic', (req, res) => {
+    const cmd = 'cmk list virtualmachines name=api-test response=json';
+    console.log('Executing CMK command:', cmd);
+    exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            console.error('exec error:', err);
+            return res.status(500).send(err.message);
+        }
+        if (stderr) {
+            console.warn('exec stderr:', stderr);
+        }
+        let data = JSON.parse(stdout);
+        console.log('exec stdout', stdout);
+        const result = data.virtualmachine
+            .flatMap(vm =>
+                vm.nic.map(n => ({
+                id: n.id,
+                networkname: n.networkname
+                }))
+            );
+        const text = result
+            .map(n => `${n.networkname} (${n.id})`)
+            .join(', ');
+        console.log(text);
+        res.json(text);
+    });
+})
+
+app.get('/vm', (req, res) => {
+    const cmd = 'cmk list virtualmachines name=api-test response=json';
+    console.log('Executing CMK command:', cmd);
+    exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            console.error('exec error:', err);
+            return res.status(500).send(err.message);
+        }
+        if (stderr) {
+            console.warn('exec stderr:', stderr);
+        }
+        let data = JSON.parse(stdout);
+        console.log('exec stdout', stdout);
+        const result = Array.isArray(data.virtualmachine)
+            ? data.virtualmachine.map(vm => ({
+                name: vm.name,
+                id: vm.id
+            }))
+            : [];
+        res.json(result);
+    });
+})
+
+app.post('/api', (req, res) => {
+    const text = req.body.text;
+    if (typeof text !== 'string') {
+        return res.status(400).send('Request body must include a text string');
+    };
+    const idx = text.indexOf('cmk');
+    if (idx === -1) {
+        return res.status(400).send('No cmk found in text');
+    }
+    let cmdArgs = text.slice(idx).trim();
+    cmdArgs = cmdArgs.replace(/[\x00-\x1F\x7F]/g, '');
+    console.log('Executing CMK with args:', cmdArgs, ' response=json');
+    const fullCmd = `${cmdArgs} response=json`;
+
+    exec(fullCmd, (err, stdout, stderr) => {
+        if (err) {
+        console.error('exec error:', err);
+        return res.status(500).send(err.message);
+        }
+        if (stderr) {
+        console.warn('exec stderr:', stderr);
+        }
+        console.log('exec stdout', stdout);
+        res.send(stdout);
+    });
+});
 
 // Socket.io setup
 io.on('connection', (socket) => {
     const client = new RealtimeClient({ apiKey: process.env.OPENAI_API_KEY });
 
     client.updateSession({
-        instructions: '너는 CloudStack API 생성을 위한 전문가야, 사용자가 요청하는 API를 생성해줘. CloudStack API는 보통 GET 메소드 형태로 요청을 해야 하니 그에 맞춰 생성해줘. 필요하다면 인터넷 정보를 참조해도 좋아. 그리고 API를 생성하는데 필요하지만, 사용자가 넣지 않은 정보는 임의로 만들지 말고 사용자에게 물어봐야 해. 예를 들어, API 요청 경로에 필요한 파라미터가 있다면, 그 파라미터의 이름과 타입을 사용자에게 물어봐야 해. 사용자가 답변을 하지 않으면, API 요청 경로를 생성하지 말고, 사용자에게 다시 물어봐야해. 별도의 설명 없이 API 요청 경로를 생성해줘야 해. 그리고 API 경로를 생성할 때는 api?부터 생성하면 돼',
+        instructions: '당신은 CloudMonkey(CMK) CLI 명령어 생성 도우미입니다.사용자가 명령어 실행에 필요한 필수 요소(리소스 종류, 리소스 이름/ID 를 제공하지 않았으면, 절대 커맨드를 바로 생성하지 말고. 어떤 리소스를 다루고 싶은지(예: virtualmachine, template, snapshot) 해당 리소스의 이름(name) 또는 ID 필요하다면 zone/region, output format 등 를 구체적으로 질문해서 정보를 모두 취합한 뒤에야 최종 cmk ... 커맨드를 출력하세요. 그리고 절대 cmk ... 이외의 부가 설명은 출력하지 마세요. 사용자에게는 cloudmonkey 명령어를 실행할 수 있는 권한이 없습니다. 사용자가 입력한 내용을 그대로 출력하지 말고, 필요한 정보를 물어보세요. 사용자가 입력한 내용은 커맨드의 일부로 사용될 수 있습니다. add nic 이런거처럼 띄어쓰지 말고 addNictoVirtualMachine 이런식으로 CamelCase로 변환해서 사용하세요. 그리고 절대 cmk ... 이렇게 명령어를 만들었을떄는 이 명령어 이외의 부가 설명은 출력하지 마세요. 사용자가 입력한 내용은 커맨드의 일부로 사용될 수 있습니다. 그리고 절대 cmk ... 이렇게 명령어를 만들었을떄는 이 명령어 이외의 부가 설명은 출력하지 마세요. 특히 = 이외의 어느 특수문자도 출력하지 마세요.',
         voice: 'alloy',
         turn_detection: { type: 'server_vad', threshold: 0.3 },
         output_audio: { model: 'audio-davinci', format: 'pcm' },
